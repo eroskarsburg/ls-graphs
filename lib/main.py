@@ -44,26 +44,21 @@ def processa_caminho(v, g):
 
     
 def dfs(Grafo, start: int, goal: int) -> (int, float, [int]): # type: ignore
-    assert(start in Grafo.vertices{})
-    assert(goal in Grafo.vertices{})
+    assert start in Grafo.vertices
+    assert goal in Grafo.vertices
     S = []
     S.append(start)
     while not len(S)== 0:
         v = S.pop()
         print(v, end=' ')
-        if goal == g:
-            return v
-        if not visitados(v):
-            processa_caminho(v, g)
-            set_visitados(v)
-            for u in Grafo.neighbors(v):
-                S.append(u)
+        # if goal == g:
+        #     return v
+        # if not visitados(v):
+        #     processa_caminho(v, g)
+        #     set_visitados(v)
+        #     for u in Grafo.neighbors(v):
+        #         S.append(u)
         
-
-
-
-
-
 
 grafo = Grafo()
 for i in range(4):
