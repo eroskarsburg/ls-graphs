@@ -1,4 +1,6 @@
 import sys
+import math
+
 #region [ other graphs implementations to use later]
 # class Graph:
 #     def __init__(self, vertices):
@@ -63,3 +65,21 @@ def read_graph(filename: str) -> Graph:
             node1, node2, cost = map(int, file.readline().split())
             graph.add_edge(node1, node2, cost)
     return graph
+
+
+def haversine(lat1, lon1, lat2, lon2):
+    """Calcula a distância, em metros, entre duas coordenadas GPS."""
+    dLat = (lat2 - lat1) * math.pi / 180.0  # pylint: disable=invalid-name
+    dLon = (lon2 - lon1) * math.pi / 180.0  # pylint: disable=invalid-name
+    # convert to radians
+    lat1 = (lat1) * math.pi / 180.0
+    lat2 = (lat2) * math.pi / 180.0
+    # apply formulae
+    a = (
+        pow(math.sin(dLat / 2), 2) +
+        pow(math.sin(dLon / 2), 2) *
+        math.cos(lat1) * math.cos(lat2)
+    )
+    rad = 6371
+    c = 2 * math.asin(math.sqrt(a))
+    return (rad * c)*1000
