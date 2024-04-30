@@ -1,7 +1,9 @@
+"""Implementação do algoritmo 'branch and bound'."""
 from lib.graph import Graph
 from typing import List, Tuple
 
 def branch_and_bound(graph: Graph, start: int, goal: int) -> Tuple[int, float, List[int]]:
+    """Busca um caminho entre start e goal usando Branch and Bound."""
     num_nodes_explored = 0
     shortest_path_length = float('inf')
     shortest_path = []
