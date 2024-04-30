@@ -1,6 +1,6 @@
 """Implementação do algoritmo A*."""
 from typing import List, Tuple
-from lib.graph import Graph
+from graph import Graph
 
 # Função para calcular a distância (heurística) entre dois nós usando a distância euclidiana
 def euclidean_distance(node1_coords: Tuple[float, float], node2_coords: Tuple[float, float]) -> float:

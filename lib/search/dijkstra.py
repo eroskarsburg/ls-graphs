@@ -1,7 +1,7 @@
 """Implementação do algoritmo de Dijkstra para o menor caminho em grafos."""
 from heapq import heapify, heappush, heappop
 from typing import List, Tuple
-from lib.graph import Graph
+from graph import Graph
 
 # Implementação do algoritmo de Dijkstra
 def dijkstra(graph: Graph, start: int, goal: int) -> Tuple[int, float, List[int]]:
