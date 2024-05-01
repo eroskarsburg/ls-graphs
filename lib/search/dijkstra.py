@@ -1,49 +1,60 @@
+from heapq import heappop, heappush
+
+def makeDict(graph):
+    """usada no dijkstra para criar um dicionário com os pontos do grafo e seus visinhos e custos"""
+    dict = {}
+    for ponto in range(len(graph)):
+        dictVisinhos = {}
+        for visinho in graph[ponto][1]:
+            dictVisinhos[visinho[0]] = visinho[1]
+        x = float(graph[ponto][0][0])
+        y = float(graph[ponto][0][1])
+        dict[ponto] = {
+            "posicao": {"x": x, "y": y},
+            "visinhos": dictVisinhos,
+            "custo": 0,
+            "anteriores": [],
+        }
+    return dict
 
 
-def dijkstra(graph, start: int, goal: int) -> tuple[int, float, list[int]]:
-    shortest_distance = []
-    track_predecessor = {}
-    unseenNodes = graph
-    infinity = 999999
-    track_path = []
+def dijkstra(graph, start: int, goal: int):
+    grafo_dicionario = makeDict(graph)
+    grafo_dicionario[start]["custo"] = 0
+    visitados = set()
+    heap = [(0, start)]
 
-    for node in unseenNodes:
-        shortest_distance[node] = infinity
-    shortest_distance[start] = 0
+    while heap:  # enquanto heap não estiver vazio
+        cost, current_node = heappop(heap)
+        if current_node in visitados:
+            continue
+        visitados.add(current_node)
 
-    while unseenNodes:
+        if current_node == goal:
+            shortest_path = reconstruir_path(grafo_dicionario, start, goal)
+            return len(visitados), cost, shortest_path
 
-        min_distance_node =  None
+        for visinho, distancia_visinho in grafo_dicionario[current_node][
+            "visinhos"
+        ].items():
+            if visinho not in visitados:
+                custo_total = cost + distancia_visinho
+                if custo_total < grafo_dicionario[visinho]["custo"]:
+                    grafo_dicionario[visinho]["custo"] = custo_total
+                    grafo_dicionario[visinho]["anteriores"] = [current_node]
+                    heappush(heap, (custo_total, visinho))
+                elif custo_total == grafo_dicionario[visinho]["custo"]:
+                    grafo_dicionario[visinho]["anteriores"].append(current_node)
 
-        for node in unseenNodes:
-            if min_distance_node is None:
-                min_distance_node = node
-            elif shortest_distance[node] < shortest_distance[min_distance_node]:
-                min_distance_node = node
-
-        path_options = graph[min_distance_node].items()
-
-        for child_node, weight in path_options:
-
-            if weight + shortest_distance[min_distance_node] < shortest_distance[child_node]:
-                shortest_distance[child_node] = weight + shortest_distance[min_distance_node]
-                track_predecessor[child_node] = min_distance_node
-
-        unseenNodes.pop(min_distance_node)
-
-    currentNode = goal
-
-    while currentNode != start:
-        try:
-            track_path.insert(0, currentNode)
-            currentNode =  track_predecessor[currentNode]
-        except KeyError:
-            print("Path is not reachable")
-            break
+    return len(visitados), float("inf"), []
 
 
-    track_path.insert(0,start)
-
-    if shortest_distance[goal] != infinity:
-        print("Shortest distance is " + str(shortest_distance[goal]))
-        print("Optimal path is: " + str(track_path))
+def reconstruir_path(graph, start, goal):
+    path = [goal]
+    while path[-1] != start:
+        current = path[-1]
+        previouscurrent_nodes = graph[current]["anteriores"]
+        if not previouscurrent_nodes:
+            return []  # no path
+        path.append(previouscurrent_nodes[0])
+    return list(reversed(path))

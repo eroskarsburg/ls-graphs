@@ -69,63 +69,86 @@ def dict_maker(graph):
         }
     return dict
 
-        
-def makehuristikdict():
-    h = {}
-    with open("romania_sld.txt", 'r') as file:
-        for line in file:
-            line = line.strip().split(",")
-            node = line[0].strip()
-            sld = int(line[1].strip())
-            h[node] = sld
-    return h
 
-def heuristic(node, values):
-    return values[node]
+def haversine(lat1, lon1, lat2, lon2):
+    """Calcula a distância, em metros, entre duas coordenadas GPS."""
+    dLat = (lat2 - lat1) * math.pi / 180.0  # pylint: disable=invalid-name
+    dLon = (lon2 - lon1) * math.pi / 180.0  # pylint: disable=invalid-name
+    # convert to radians
+    lat1 = (lat1) * math.pi / 180.0
+    lat2 = (lat2) * math.pi / 180.0
+    # apply formulae
+    a = pow(math.sin(dLat / 2), 2) + pow(math.sin(dLon / 2), 2) * math.cos(
+        lat1
+    ) * math.cos(lat2)
+    rad = 6371
+    c = 2 * math.asin(math.sqrt(a))
+    return (rad * c) * 1000
 
-def astar(graph, start, end):
-    dic = dict_maker(graph)
-    path = {}
-    distance = {}
-    q = priorityQueue()
-    h = makehuristikdict()
-    q.push(start, 0)
-    distance[start] = 0
-    path[start] = None
-    expandedList = []
-    while (q.isEmpty() == False):
-        current = q.pop()
-        expandedList.append(current)
-        if (current == end):
+
+
+def makeDict2(graph, goal):
+    dict = {}
+    goalPos = graph[goal][0]
+    for ponto in range(len(graph)):
+        dictVisinhos = {}
+        for visinho in graph[ponto][1]:
+            dictVisinhos[visinho[0]] = visinho[1]
+        x = float(graph[ponto][0][0])
+        y = float(graph[ponto][0][1])
+        dict[ponto] = {
+            "posicao": {"x": x, "y": y},
+            "visinhos": dictVisinhos,
+            "custo": float("inf"),
+            "anteriores": [],
+            "goalDistance": 0,
+        }
+    return dict
+
+
+def a_star2(graph, start, goal):
+    grafo_dicionario = makeDict2(graph, goal)
+    grafo_dicionario[start]["custo"] = 0
+    visitados = set()
+    heap = [(0, start)]
+    current_node = 0
+
+    while heap:
+        current_node = heapq.heappop(heap)[1]
+        if current_node in visitados:
+            continue
+        visitados.add(current_node)
+        if current_node == goal:
             break
-        for new in romania[current]:
-            g_cost = distance[current] + int(new.distance)
-            #print(new.city, new.distance, "now : " + str(distance[current]), g_cost)
-            if (new.city not in distance or g_cost < distance[new.city]):
-                distance[new.city] = g_cost
-                f_cost = g_cost + heuristic(new.city, h)
-                #print(f_cost)
-                q.push(new.city, f_cost)
-                path[new.city] = current
-    printoutput(start, end, path, distance, expandedList)
+        for visinho in grafo_dicionario[current_node]["visinhos"]:
 
-def printoutput(start, end, path, distance, expandedlist):
-    finalpath = []
-    i = end
-    while (path.get(i) != None):
-        finalpath.append(i)
-        i = path[i]
-    finalpath.append(start)
-    finalpath.reverse()
-    print("A-star Agorithm for Romania Map")
-    print("\tArad => Bucharest")
-    print("=======================================================")
-    print("List of Cities that are Expanded : " + str(expandedlist))
-    print("Total Number of Cities that are Expanded : " + str(len(expandedlist)))
-    print("=======================================================")
-    print("Cities in Final path : " + str(finalpath))
-    print("Total Number of cities in final path are : " + str(len(finalpath)))
-    print("Total Cost : " + str(distance[end]))
+            new_cost = (
+                grafo_dicionario[current_node]["custo"]
+                + grafo_dicionario[current_node]["visinhos"][visinho]
+            )
+            if new_cost < grafo_dicionario[visinho]["custo"] and visinho not in visitados:
+                print(visinho)
+                grafo_dicionario[visinho][
+                    "custo"
+                ] = new_cost
+                priority = new_cost + haversine(
+                    grafo_dicionario[goal]["posicao"]["x"],
+                    grafo_dicionario[goal]["posicao"]["y"],
+                    grafo_dicionario[visinho]["posicao"]["x"],
+                    grafo_dicionario[visinho]["posicao"]["y"],
+                )
+                heapq.heappush(heap, (priority, visinho))
+                grafo_dicionario[visinho][
+                    "anteriores"
+                ] = current_node
+    path = []
+    current_node = goal
+    while current_node != start:
+        path.append(current_node)
+        current_node = grafo_dicionario[current_node]["anteriores"]
+    path.append(start)
+    path.reverse()
+    return len(visitados), grafo_dicionario[goal]["custo"], path
 
 
 def a_star(graph, start, goal):
@@ -134,13 +157,13 @@ def a_star(graph, start, goal):
     goal_node = dict[goal]
     closed_list = set()
     opened_list = set()
-    cur_node = -1
     g = 0 # custo do node atual até o node final
     h = 0 # custo do node atual até o node inicial
     best_cost = 10000000
+    heap = [(0, start)]
 
-    while range(len(dict)):
-        cur_node = cur_node+1
+    while heap:
+        cur_node = heapq.heappop(heap)[1]
         if cur_node in closed_list:
             continue
         opened_list.add(cur_node)
@@ -184,3 +207,7 @@ def read_graph(filename: str):
             graph[int(from_vertex)][1].append([int(to_vertex), float(cost)])
             graph[int(to_vertex)][1].append([int(from_vertex), float(cost)])
     return graph
+
+
+graph = read_graph("lib\mapas\mini_map.txt")
+print(a_star2(graph, 0, 9))

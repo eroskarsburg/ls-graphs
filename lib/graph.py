@@ -1,9 +1,9 @@
 import math
 
 class Graph:
-    def __init__(self, vertices):
-        self.vertices = vertices
-        self.grafo = [[0] * self.vertices for i in range(self.vertices)]
+    def __init__(self):
+        self.vertices = 0
+        self.grafo = []
 
     
     def adiciona_aresta(self, u, v, peso):
