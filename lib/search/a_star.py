@@ -1,6 +1,5 @@
 import heapq
 import math
-import sys
 from typing import Tuple
 
 class priorityQueue:
@@ -144,7 +143,7 @@ def a_star(graph, start, goal):
         cur_node = cur_node+1
         if cur_node in closed_list:
             continue
-        closed_list.add(cur_node)
+        opened_list.add(cur_node)
         for current_neighbor in dict[cur_node]['neighbors'].items():
             opened_list.add(current_neighbor)
         for item in opened_list:
@@ -185,19 +184,3 @@ def read_graph(filename: str):
             graph[int(from_vertex)][1].append([int(to_vertex), float(cost)])
             graph[int(to_vertex)][1].append([int(from_vertex), float(cost)])
     return graph
-
-
-## MAIN CODE
-graph = read_graph("lib\mapas\mini_map.txt")
-
-start = "Arad"
-goal = "Bucharest"
-start = 0
-goal = 9
-a_star(graph, start, goal)
-
-
-print(a_star(graph, 0, 9))
-visited_nodes, optimal_nodes = AStarSearch()
-print('visited nodes: ' + str(visited_nodes))
-print('optimal nodes sequence: ' + str(optimal_nodes))
