@@ -3,10 +3,16 @@ from queue import deque as Queue
 
 def bfs(graph, start: int, goal: int) -> (int, float, [int]):
     """Busca um caminho entre start e goal usando busca em largura."""
+    try:
+        graph[start]
+        graph[goal]
+    except KeyError:
+        print("Node doesn't exist")
+        return None
+
     stack = [(start, None)]  
     visitedNodes = {} 
     front = 0  
-
     while front < len(stack):
         v, predecessor = stack[front] 
         front += 1 

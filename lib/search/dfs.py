@@ -3,8 +3,15 @@ from heapq import heapify, heappush, heappop
 
 def dfs(graph, start: int, goal: int) -> (int, float, [int]):
     """Busca um caminho entre start e goal usando busca em profundidade."""
-    stack = [start, 0]
-    visNodes = []
+    try:
+        graph[start]
+        graph[goal]
+    except KeyError:
+        print("Node doesn't exist")
+        return None
+    
+    stack = [ (start,None) ]
+    visNodes = list()
     while len(stack):
         v = stack.pop()
         if goal == v[0]:
