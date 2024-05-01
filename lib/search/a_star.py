@@ -1,29 +1,44 @@
 import heapq
 import math
-from typing import Tuple
 
-class priorityQueue:
-    def __init__(self):
-        self.cities = []
-    def push(self, city, cost):
-        heapq.heappush(self.cities, (cost, city))
+class PriorityQueue:
+    def __init__(self, start = 0, goal = 0):
+        self._start_node = start
+        self._goal_node = goal
+        self.came_from = {}
+        self.cost_so_far = {}
+        self.came_from[start] = None
+        self.cost_so_far[start] = 0
+        self.new_graph = []
+        
+    def set(self):
+        self.heap = [(0, self._start_node)]
+    
+    def push(self, priority, neighbor):
+        heapq.heappush(self.heap, (priority, neighbor))
+
     def pop(self):
-        return heapq.heappop(self.cities)[1]
+        return heapq.heappop(self.heap)[1]
+    
     def isEmpty(self):
         if (self.cities == []):
             return True
         else:
             return False
+        
     def check(self):
         print(self.cities)
 
-class ctNode:
-    def __init__(self, city, distance):
-        self.city = str(city)
-        self.distance = str(distance)
 
-romania = {}
+class ValorGraph:
+    def __init__(self) -> None:
+        self.position = Position
 
+
+class Position:
+    def __init__(self) -> None:
+        self.x = 0
+        self.y = 0
 
 class Diction():
 
@@ -89,7 +104,6 @@ def haversine(lat1, lon1, lat2, lon2):
 
 def makeDict2(graph, goal):
     dict = {}
-    goalPos = graph[goal][0]
     for ponto in range(len(graph)):
         dictVisinhos = {}
         for visinho in graph[ponto][1]:
@@ -107,48 +121,48 @@ def makeDict2(graph, goal):
 
 
 def a_star2(graph, start, goal):
-    grafo_dicionario = makeDict2(graph, goal)
-    grafo_dicionario[start]["custo"] = 0
+    f = PriorityQueue(start=start, goal=goal)
+    f.new_graph = makeDict2(graph, goal)
+    f.new_graph[start]["custo"] = 0
     visitados = set()
-    heap = [(0, start)]
-    current_node = 0
+    f.set()
+    cur_node = 0
 
-    while heap:
-        current_node = heapq.heappop(heap)[1]
-        if current_node in visitados:
+    while True:
+        cur_node = f.pop()
+        if cur_node in visitados:
             continue
-        visitados.add(current_node)
-        if current_node == goal:
+        visitados.add(cur_node)
+        if cur_node == goal:
             break
-        for visinho in grafo_dicionario[current_node]["visinhos"]:
+        for neighbor in f.new_graph[cur_node]["visinhos"]:
 
-            new_cost = (
-                grafo_dicionario[current_node]["custo"]
-                + grafo_dicionario[current_node]["visinhos"][visinho]
+            best_cost = (
+                f.new_graph[cur_node]["custo"]
+                + f.new_graph[cur_node]["visinhos"][neighbor]
             )
-            if new_cost < grafo_dicionario[visinho]["custo"] and visinho not in visitados:
-                print(visinho)
-                grafo_dicionario[visinho][
+            if best_cost < f.new_graph[neighbor]["custo"] and neighbor not in visitados:
+                f.new_graph[neighbor][
                     "custo"
-                ] = new_cost
-                priority = new_cost + haversine(
-                    grafo_dicionario[goal]["posicao"]["x"],
-                    grafo_dicionario[goal]["posicao"]["y"],
-                    grafo_dicionario[visinho]["posicao"]["x"],
-                    grafo_dicionario[visinho]["posicao"]["y"],
+                ] = best_cost
+                priority = best_cost + haversine(
+                    f.new_graph[goal]["posicao"]["x"],
+                    f.new_graph[goal]["posicao"]["y"],
+                    f.new_graph[neighbor]["posicao"]["x"],
+                    f.new_graph[neighbor]["posicao"]["y"],
                 )
-                heapq.heappush(heap, (priority, visinho))
-                grafo_dicionario[visinho][
+                f.push(priority, neighbor)
+                f.new_graph[neighbor][
                     "anteriores"
-                ] = current_node
+                ] = cur_node
     path = []
-    current_node = goal
-    while current_node != start:
-        path.append(current_node)
-        current_node = grafo_dicionario[current_node]["anteriores"]
+    cur_node = goal
+    while cur_node != start:
+        path.append(cur_node)
+        cur_node = f.new_graph[cur_node]["anteriores"]
     path.append(start)
     path.reverse()
-    return len(visitados), grafo_dicionario[goal]["custo"], path
+    return len(visitados), f.new_graph[goal]["custo"], path
 
 
 def a_star(graph, start, goal):

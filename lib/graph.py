@@ -17,6 +17,7 @@ class Graph:
             print(self.grafo[i])
 
 
+
 def read_graph(filename: str):
     """Le uma estrutura de grafo de um arquivo e retorna a estrutura."""
     with open(filename, "rt") as input_file:
@@ -24,9 +25,9 @@ def read_graph(filename: str):
         graph = [[] for _ in range(vertex_count)]
 
         for _ in range(vertex_count):
-            index, latitude, longitude = input_file.readline().strip().split()
-            graph[_].append((latitude, longitude))  # vertex
-            graph[_].append([])  # edges
+            latitude, longitude = input_file.readline().strip().split()
+            graph[_].append((latitude, longitude))
+            graph[_].append([])
 
         for _ in range(int(input_file.readline().strip())):
             from_vertex, to_vertex, cost = input_file.readline().strip().split()
