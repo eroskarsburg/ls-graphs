@@ -25,7 +25,7 @@ def read_graph(filename: str):
         graph = [[] for _ in range(vertex_count)]
 
         for _ in range(vertex_count):
-            latitude, longitude = input_file.readline().strip().split()
+            index, latitude, longitude = input_file.readline().strip().split()
             graph[_].append((latitude, longitude))
             graph[_].append([])
 

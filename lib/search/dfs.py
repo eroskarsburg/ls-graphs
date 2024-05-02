@@ -3,15 +3,9 @@ from heapq import heapify, heappush, heappop
 
 def dfs(graph, start: int, goal: int) -> (int, float, [int]):
     """Busca um caminho entre start e goal usando busca em profundidade."""
-    try:
-        graph[start]
-        graph[goal]
-    except KeyError:
-        print("Node doesn't exist")
-        return None
     
     stack = [ (start,None) ]
-    visNodes = list()
+    visNodes = []
     while len(stack):
         v = stack.pop()
         if goal == v[0]:
@@ -36,3 +30,40 @@ def dfs(graph, start: int, goal: int) -> (int, float, [int]):
             visNodes.append(v)               
             for key, value in graph[v[0]][1].items():
                 stack.append( (key, v[0], value) )
+
+
+def dfs2(graph, start: int, goal: int) -> (int, float, [int]):
+    goal = graph[goal]
+    stack = [(start,None)]
+    while not stack:
+        v = S.pop()
+        if goal == v:
+            return  # encontrou o caminho
+        if not visited(v):
+            # processa o caminho "até v"
+            processa_caminho(v)
+            set_visited(v)
+            for u in Grafo.neighbors(v):
+                S.push(u)
+
+
+def read_graph(filename: str):
+    """Le uma estrutura de grafo de um arquivo e retorna a estrutura."""
+    with open(filename, "rt") as input_file:
+        vertex_count = int(input_file.readline().strip())
+        graph = [[] for _ in range(vertex_count)]
+
+        for _ in range(vertex_count):
+            index, latitude, longitude = input_file.readline().strip().split()
+            graph[_].append((latitude, longitude))
+            graph[_].append([])
+
+        for _ in range(int(input_file.readline().strip())):
+            from_vertex, to_vertex, cost = input_file.readline().strip().split()
+            graph[int(from_vertex)][1].append([int(to_vertex), float(cost)])
+            graph[int(to_vertex)][1].append([int(from_vertex), float(cost)])
+    return graph
+
+
+# grafo = read_graph("lib\mapas\mini_map.txt")
+# print("BFS: " + dfs2(grafo, 0, 9))

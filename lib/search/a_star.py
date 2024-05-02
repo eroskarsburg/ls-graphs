@@ -1,18 +1,25 @@
 import heapq
 import math
+import util
 
 class PriorityQueue:
     def __init__(self, start = 0, goal = 0):
         self._start_node = start
         self._goal_node = goal
+        self.priority = 0
+        self.cur_node = 0
         self.came_from = {}
-        self.cost_so_far = {}
+        self.cost_so_far = 0
         self.came_from[start] = None
-        self.cost_so_far[start] = 0
         self.new_graph = []
         
     def set(self):
         self.heap = [(0, self._start_node)]
+    
+    def set_priority(self, neighbor):
+        lat1, lon1 = self.new_graph[self._goal_node]["coords"]["x"], self.new_graph[self._goal_node]["coords"]["y"]
+        lat2, lon2 = self.new_graph[neighbor]["coords"]["x"], self.new_graph[neighbor]["coords"]["y"]
+        self.priority = self.cost_so_far + haversine(lat1, lon1, lat2, lon2)
     
     def push(self, priority, neighbor):
         heapq.heappush(self.heap, (priority, neighbor))
@@ -21,18 +28,15 @@ class PriorityQueue:
         return heapq.heappop(self.heap)[1]
     
     def isEmpty(self):
-        if (self.cities == []):
+        if (self.heap == []):
             return True
         else:
             return False
-        
-    def check(self):
-        print(self.cities)
 
 
 class ValorGraph:
     def __init__(self) -> None:
-        self.position = Position
+        self.position = Position()
 
 
 class Position:
@@ -68,7 +72,7 @@ class Diction():
         return dic
 
 
-def dict_maker(graph):
+def doDictGraph(graph):
     dict = {}
     for ponto in range(len(graph)):
         dictVisinhos = {}
@@ -77,7 +81,7 @@ def dict_maker(graph):
         x = float(graph[ponto][0][0])
         y = float(graph[ponto][0][1])
         dict[ponto] = {
-            "coordinates": {"x": x, "y": y},
+            "coords": {"x": x, "y": y},
             "neighbors": dictVisinhos,
             "cost": 0,
             "visited_neighbors": [],
@@ -111,117 +115,52 @@ def makeDict2(graph, goal):
         x = float(graph[ponto][0][0])
         y = float(graph[ponto][0][1])
         dict[ponto] = {
-            "posicao": {"x": x, "y": y},
-            "visinhos": dictVisinhos,
-            "custo": float("inf"),
-            "anteriores": [],
+            "coords": {"x": x, "y": y},
+            "neighbors": dictVisinhos,
+            "cost": float("inf"),
+            "closed_list": [],
             "goalDistance": 0,
         }
     return dict
 
 
-def a_star2(graph, start, goal):
+def a_star(graph, start: int, goal: int) -> (int, float, [int]):
     f = PriorityQueue(start=start, goal=goal)
     f.new_graph = makeDict2(graph, goal)
-    f.new_graph[start]["custo"] = 0
-    visitados = set()
     f.set()
-    cur_node = 0
-
-    while True:
-        cur_node = f.pop()
-        if cur_node in visitados:
-            continue
-        visitados.add(cur_node)
-        if cur_node == goal:
+    path = list()
+    closed_list = set()
+    cost = f.new_graph[start]["cost"] = 0
+    prodec_cost = 0
+    heurist = 0
+    while not f.isEmpty():
+        f.cur_node = f.pop()
+        if f.cur_node == goal:
+            closed_list.add(f.cur_node)
             break
-        for neighbor in f.new_graph[cur_node]["visinhos"]:
-
-            best_cost = (
-                f.new_graph[cur_node]["custo"]
-                + f.new_graph[cur_node]["visinhos"][neighbor]
-            )
-            if best_cost < f.new_graph[neighbor]["custo"] and neighbor not in visitados:
-                f.new_graph[neighbor][
-                    "custo"
-                ] = best_cost
-                priority = best_cost + haversine(
-                    f.new_graph[goal]["posicao"]["x"],
-                    f.new_graph[goal]["posicao"]["y"],
-                    f.new_graph[neighbor]["posicao"]["x"],
-                    f.new_graph[neighbor]["posicao"]["y"],
-                )
-                f.push(priority, neighbor)
-                f.new_graph[neighbor][
-                    "anteriores"
-                ] = cur_node
-    path = []
-    cur_node = goal
-    while cur_node != start:
-        path.append(cur_node)
-        cur_node = f.new_graph[cur_node]["anteriores"]
+        if f.cur_node in closed_list:
+            closed_list.add(f.cur_node)
+            continue
+        if len(f.new_graph[f.cur_node]["neighbors"]) == 0:
+            continue
+        closed_list.add(f.cur_node)
+        for neighbor in f.new_graph[f.cur_node]["neighbors"]:
+            #heuristic
+            #f = g + h
+            f.cost_so_far = (f.new_graph[f.cur_node]["cost"] + f.new_graph[f.cur_node]["neighbors"][neighbor])
+            if f.cost_so_far < f.new_graph[neighbor]["cost"]:
+                if neighbor not in closed_list:
+                    f.new_graph[neighbor]["cost"] = f.cost_so_far
+                    f.set_priority(neighbor)
+                    f.push(f.priority, neighbor)
+                    f.new_graph[neighbor]["closed_list"] = f.cur_node
+                else:
+                    continue
+    nodes_distance = util.heuristic(f.new_graph[start], f.new_graph[goal])
+    f.cur_node = goal
+    while f.cur_node != start:
+        path.append(f.cur_node)
+        f.cur_node = f.new_graph[f.cur_node]["closed_list"]
     path.append(start)
     path.reverse()
-    return len(visitados), f.new_graph[goal]["custo"], path
-
-
-def a_star(graph, start, goal):
-    dict = dict_maker(graph)
-    start_node = dict[start]
-    goal_node = dict[goal]
-    closed_list = set()
-    opened_list = set()
-    g = 0 # custo do node atual até o node final
-    h = 0 # custo do node atual até o node inicial
-    best_cost = 10000000
-    heap = [(0, start)]
-
-    while heap:
-        cur_node = heapq.heappop(heap)[1]
-        if cur_node in closed_list:
-            continue
-        opened_list.add(cur_node)
-        for current_neighbor in dict[cur_node]['neighbors'].items():
-            opened_list.add(current_neighbor)
-        for item in opened_list:
-            cost = item[1]
-            if cost < best_cost:
-                best_cost = cost
-                closed_list.add(cur_node)
-
-        opened_list.remove(cur_node)
-
-
-
-    return None
-
-
-
-def heuristic(node, goal_node):
-    x1, y1 = node
-    x2, y2 = goal_node
-    val = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-    return val  # Euclidean distance
-
-
-# Example usage
-def read_graph(filename: str):
-    """Le uma estrutura de grafo de um arquivo e retorna a estrutura."""
-    with open(filename, "rt") as input_file:
-        vertex_count = int(input_file.readline().strip())
-        graph = [[] for _ in range(vertex_count)]
-
-        for _ in range(vertex_count):
-            index, latitude, longitude = input_file.readline().strip().split()
-            graph[_].append((latitude, longitude))  # vertex
-            graph[_].append([])  # edges
-
-        for _ in range(int(input_file.readline().strip())):
-            from_vertex, to_vertex, cost = input_file.readline().strip().split()
-            graph[int(from_vertex)][1].append([int(to_vertex), float(cost)])
-            graph[int(to_vertex)][1].append([int(from_vertex), float(cost)])
-    return graph
-
-
-graph = read_graph("lib\mapas\mini_map.txt")
-print(a_star2(graph, 0, 9))
+    return len(closed_list), f.new_graph[goal]["cost"], path
