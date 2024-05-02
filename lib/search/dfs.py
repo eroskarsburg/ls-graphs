@@ -1,5 +1,37 @@
 """Implementação da busca em profundidade."""
 from heapq import heapify, heappush, heappop
+import sys
+
+class Stack:
+    def __init__(self):
+        self.items = []
+        self.visited_items = []
+
+    def is_empty(self):
+        return self.items == []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            print("A pilha está vazia.")
+            return None
+
+    def peek(self):
+        if not self.is_empty():
+            return self.items[-1]
+        else:
+            print("A pilha está vazia.")
+            return None
+
+    def visited(self, value):
+        return value in self.visited_items
+
+    def size(self):
+        return len(self.items)
 
 def dfs(graph, start: int, goal: int) -> (int, float, [int]):
     """Busca um caminho entre start e goal usando busca em profundidade."""
@@ -27,24 +59,34 @@ def dfs(graph, start: int, goal: int) -> (int, float, [int]):
             path.reverse()
             return (countNodes, totalCost, path)
         if not v in visNodes:
-            visNodes.append(v)               
-            for key, value in graph[v[0]][1].items():
+            visNodes.append(v)
+            for key, value in graph[v[0]][1]:
                 stack.append( (key, v[0], value) )
 
 
 def dfs2(graph, start: int, goal: int) -> (int, float, [int]):
-    goal = graph[goal]
-    stack = [(start,None)]
-    while not stack:
-        v = S.pop()
-        if goal == v:
-            return  # encontrou o caminho
-        if not visited(v):
-            # processa o caminho "até v"
-            processa_caminho(v)
-            set_visited(v)
-            for u in Grafo.neighbors(v):
-                S.push(u)
+    s = Stack()
+    s.push(start)
+    best_cost = sys.maxsize
+    node = 0
+    while not s.is_empty():
+        node = s.pop()
+        if goal == node:
+            break
+        if not s.visited(node):
+            s.visited_items.append(node)
+            for neighbor in graph[node][1]:
+                cost = neighbor[1]
+                if cost < best_cost:
+                    best_cost = cost
+                    cur_node = neighbor[0]
+                    s.push(cur_node)
+    return node
+                
+            # processa_caminho(v)
+            # set_visited(v)
+            # for u in Grafo.neighbors(v):
+            #     S.push(u)
 
 
 def read_graph(filename: str):
@@ -65,5 +107,5 @@ def read_graph(filename: str):
     return graph
 
 
-# grafo = read_graph("lib\mapas\mini_map.txt")
-# print("BFS: " + dfs2(grafo, 0, 9))
+grafo = read_graph("lib\mapas\mini_map.txt")
+print(dfs(grafo, 0, 7))
