@@ -26,7 +26,7 @@ def haversine(lat1, lon1, lat2, lon2):
 #
 
 def heuristic(node, goal_node):
-    x1, y1 = node['coords']['x'], node['coords']['y']
-    x2, y2 = goal_node['coords']['x'], goal_node['coords']['y']
+    x1, y1 = float(node[0][0]), float(node[0][1])
+    x2, y2 = float(goal_node[0][0]), float(goal_node[0][1]) 
     val = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
     return val  # Euclidean distance

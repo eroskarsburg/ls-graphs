@@ -1,9 +1,8 @@
 """Implementação do algoritmo 'branch and bound'."""
-from graph import Graph
-import math
+
 from typing import List, Tuple
 
-def branch_and_bound(graph: Graph, start: int, goal: int) -> Tuple[int, float, List[int]]:
+def branch_and_bound(graph, start: int, goal: int) -> Tuple[int, float, List[int]]:
     """Busca um caminho entre start e goal usando Branch and Bound."""
     visited = set() # Uma lista contendo os nodos já visitados.
     stack = [(0, 0, [start])]  # (lower_bound, cost, path).

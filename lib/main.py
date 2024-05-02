@@ -1,14 +1,13 @@
 """Utilize este arquivo para depurar seus algoritmos."""
 
-from graph import Graph, read_graph
+from graph import read_graph
 from search import dfs, bfs, a_star, branch_and_bound, dijkstra
 
 
 if __name__ == "__main__":
-    g = Graph()
-    g.grafo = read_graph("lib\mapas\mini_map.txt")
-    #print("DFS: " + dfs(g.grafo, 0, 9))
-    #print("BFS: " + bfs(g.grafo, 0, 9))
-    #print("BRANCH AND BOUND: " + branch_and_bound(g.grafo, 0, 7))
-    print(a_star(g.grafo, 0, 9))
-    #print("DIJKSTRA: " + dijkstra(g.grafo, 0, 9))
+    graph = read_graph("lib\mapas\mini_map.txt")
+    #print(dfs(graph, 0, 7))
+    #print(bfs(graph, 0, 7))
+    #print(branch_and_bound(graph, 0, 7))
+    print(a_star(graph, 0, 7))
+    #print(dijkstra(graph, 0, 7))
