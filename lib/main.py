@@ -9,5 +9,5 @@ if __name__ == "__main__":
     #print(dfs(graph, 0, 7))
     #print(bfs(graph, 0, 7))
     #print(branch_and_bound(graph, 0, 7))
-    print(a_star(graph, 0, 7))
-    #print(dijkstra(graph, 0, 7))
+    #print(a_star(graph, 0, 7))
+    print(dijkstra(graph, 0, 9))
