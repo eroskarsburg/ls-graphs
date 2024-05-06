@@ -1,5 +1,4 @@
 """Implementação do algoritmo A*."""
-from heapq import heappush, heappop
 from queue import PriorityQueue
 from util import heuristic
 
@@ -12,18 +11,19 @@ def a_star(graph, start: int, goal: int) -> (int, float, [int]):
     came_from[start] = None
     const_so_far[start] = 0
     while not frontier.empty():
-        current = frontier.get()
-        if current == goal:
+        vertex = frontier.get()
+        if vertex == goal:
             break
-        for next_node, next_node_cost in graph[current][1]:
-            new_cost = const_so_far[current] + next_node_cost
-            if next_node not in const_so_far or new_cost < const_so_far[next_node]:
-                const_so_far[next_node] = new_cost
-                priority = new_cost + heuristic(graph[next_node], graph[goal])
-                frontier.put(next_node, priority)
-                came_from[next_node] = current
-    predecessor = came_from[current]
-    path = [current]
+        for nbor_vertex in graph[vertex][1]:
+            nbor_dist = graph[vertex][1][nbor_vertex]
+            new_cost = const_so_far[vertex] + nbor_dist
+            if nbor_vertex not in const_so_far or new_cost < const_so_far[nbor_vertex]:
+                const_so_far[nbor_vertex] = new_cost
+                priority = new_cost + heuristic(graph[nbor_vertex], graph[goal])
+                frontier.put(nbor_vertex, priority)
+                came_from[nbor_vertex] = vertex
+    predecessor = came_from[vertex]
+    path = [vertex]
     while predecessor != None:
         path.append(predecessor)
         predecessor = came_from[predecessor]
